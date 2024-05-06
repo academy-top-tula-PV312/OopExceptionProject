@@ -1,54 +1,113 @@
 ﻿#include <iostream>
+#include <exception>
 
-double Div(double x, double y)
+#include "ExampleFirst.cpp"
+
+class MyException : public std::exception
 {
-    if ((int)y == 0) throw 0.0;
-    return x / y;
-}
-
-void Hello(std::string name)
-{
-    if (name == "") throw "empty";
-
-    std::cout << "Hello " << name << "\n";
-}
-
-int& InputAge()
-{
-    int age;
-    std::cout << "Input age: ";
-    std::cin >> age;
-    if (age < 0) throw -1;
-
-    return age;
-}
-
-int main()
-{
-    double x{ 5.5 };
-    double y{ 1.2 };
-    std::string name = "";
-
-    try
-    {   
-        std::cout << Div(x, y) << "\n";
-        Hello(name);
-        int age = InputAge();
-    }
-    catch (int ex)
+    std::string message;
+public:
+    MyException(std::string message = "Exception!") : message{ message } {}
+    const char* what() const noexcept override
     {
-        std::cout << "Age must be positive\n";
+        return message.c_str();
+    }
+};
+
+void funcD()
+{
+    std::cout << "Start D\n";
+    std::cout << "Func D throwing exception\n";
+
+    throw new MyException("Exception in function D");
+
+    std::cout << "Finish D\n";
+}
+
+void funcC()
+{
+    std::cout << "Start C\n";
+
+    funcD();
+
+    std::cout << "Finish C\n";
+}
+
+void funcB()
+{
+    std::cout << "Start B\n";
+    
+    try
+    {
+        funcC();
     }
     catch (double ex)
     {
-        std::cout << "Divide by zero\n";
+        std::cout << "B catch double exception\n";
     }
-    catch (std::string ex)
+
+    try
     {
-        std::cout << "Empty name\n";
+    }
+    catch (int ex)
+    {
+        std::cout << "B catch int exception\n";
+    }
+
+    std::cout << "Finish B\n";
+}
+
+void funcA()
+{
+    std::cout << "Start A\n";
+
+    try
+    {
+        funcB();
+    }
+    catch (std::exception* ex)
+    {
+        std::cout << "A catch int exception: " << ex->what() << "\n";
+        //throw;
+    }
+    
+
+    std::cout << "Finish A\n";
+}
+
+
+int main()
+{
+    // ExampleFirst();
+
+    /*std::cout << "Start Main\n";
+
+    try
+    {
+        funcA();
+        std::cout << "Work Main\n";
+    }
+    catch (int ex)
+    {
+        std::cout << "Main catch int exception\n";
+    }
+
+    std::cout << "Finish Main\n";*/
+
+    int n;
+    std::cout << "input n: ";
+    std::cin >> n;
+
+    try
+    {
+        if (n == 0)
+            throw 1;
+
+        std::cout << 100 / n << "\n";
     }
     catch (...)
     {
-        std::cout << "Error\n";
+        std::cout << "div error!\n";
     }
+
 }
